@@ -1,3 +1,6 @@
 <resources>
-    <string name="app_name">GPS Tracker</string>
+    <string name="app_name">GeoTrack App</string>
+    <string name="input_hint">Introduce localizacion</string>
+    <string name="save">Enviar datos</string>
+    <string name="get_location">Obtener localizacion</string>
 </resources>

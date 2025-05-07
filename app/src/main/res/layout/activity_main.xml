@@ -8,14 +8,14 @@
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context="com.journaldev.geotrack.MainActivity">
+    tools:context="com.redp.geotrack.MainActivity">
 
 
     <Button
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/btn2"
-            android:text="Save Data"
+            android:text="@string/save"
             android:layout_centerHorizontal="true" android:layout_alignParentBottom="true"
             android:layout_marginBottom="101dp"/>
     <Button
@@ -23,11 +23,12 @@
         android:layout_height="wrap_content"
         android:id="@+id/btn"
         android:layout_centerInParent="true"
-        android:text="GET LOCATION" />
+        android:text="@string/get_location" />
     <EditText
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:inputType="textPersonName"
+            android:hint="@string/input_hint"
             android:text=""
             android:ems="10"
             android:id="@+id/text01" android:layout_centerHorizontal="true"

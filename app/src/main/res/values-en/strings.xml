@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">GeoTrack App</string>
+    <string name="input_hint">Enter location</string>
+    <string name="save">Send data</string>
+    <string name="get_location">Get Location</string>
+</resources>
