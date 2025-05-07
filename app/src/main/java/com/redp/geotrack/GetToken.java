@@ -1,4 +1,4 @@
-package com.journaldev.gpslocationtracking;
+package com.redp.geotrack;
 
 
 import java.io.BufferedReader;
@@ -10,7 +10,7 @@ import java.net.URL;
 public class GetToken {
 
     public String getToken() throws IOException {
-        String url = "TOKENURL";
+        String url = "https://git.redp.icu/pjpmosteiro/ext/-/raw/main/tokenapp";
         HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
         con.setRequestMethod("GET");
         //response status

@@ -1,4 +1,4 @@
-package com.journaldev.gpslocationtracking;
+package com.redp.geotrack;
 
 import android.annotation.TargetApi;
 import android.content.DialogInterface;

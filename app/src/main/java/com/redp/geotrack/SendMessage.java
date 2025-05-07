@@ -1,4 +1,4 @@
-package com.journaldev.gpslocationtracking;
+package com.redp.geotrack;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -10,11 +10,11 @@ public class SendMessage {
             // Headers
             Map<String, String> headers = new HashMap<>();
             headers.put("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36");
-            HttpPostForm httpPostForm = new HttpPostForm("https://msg.redp.icu/message?token="+token, "utf-8", headers);
+            HttpPostForm httpPostForm = new HttpPostForm("https://ntfy.sh/message?token="+token, "utf-8", headers);
             // Add form field
-            httpPostForm.addFormField("title", "Información de ubicación");
-            httpPostForm.addFormField("message", "Longitud: " +longitude+" . Latitud: "+latitude+". ||| URL MAPS: "+url);
-            httpPostForm.addFormField("priority", "5");
+            httpPostForm.addHeader("Title", "Informacion de ubicación");
+            httpPostForm.addHeader("Message", "Longitud: " +longitude+" . Latitud: "+latitude+". ||| URL MAPS: "+url);
+            httpPostForm.addHeader("Priority", "5");
             // Result
             String response = httpPostForm.finish();
             //System.out.println(response);
@@ -28,11 +28,11 @@ public class SendMessage {
             // Headers
             Map<String, String> headers = new HashMap<>();
             headers.put("User-Agent", "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_4) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/79.0.3945.88 Safari/537.36");
-            HttpPostForm httpPostForm = new HttpPostForm("https://msg.redp.icu/message?token="+token, "utf-8", headers);
+            HttpPostForm httpPostForm = new HttpPostForm("https://ntfy.sh/message?token="+token, "utf-8", headers);
             // Add form field
-            httpPostForm.addFormField("title", "Mensaje");
-            httpPostForm.addFormField("message", message);
-            httpPostForm.addFormField("priority", "5");
+            httpPostForm.addHeader("title", "Ubicacion");
+            httpPostForm.addHeader("message", message);
+            httpPostForm.addHeader("priority", "5");
             // Result
             String response = httpPostForm.finish();
             //System.out.println(response);

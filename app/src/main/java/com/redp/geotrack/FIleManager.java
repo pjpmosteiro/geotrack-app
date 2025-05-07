@@ -1,4 +1,4 @@
-package com.journaldev.gpslocationtracking;
+package com.redp.geotrack;
 
 import android.content.Context;
 import android.util.Log;

@@ -1,4 +1,4 @@
-package com.journaldev.gpslocationtracking;
+package com.redp.geotrack;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -61,7 +61,7 @@ public class HttpPostForm {
      * @param name  field name
      * @param value field value
      */
-    public void addFormField(String name, Object value) {
+    public void addHeader(String name, Object value) {
         queryParams.put(name, value);
     }
 
