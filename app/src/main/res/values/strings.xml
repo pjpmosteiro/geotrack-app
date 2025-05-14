@@ -3,4 +3,5 @@
     <string name="input_hint">Introduce localizacion</string>
     <string name="save">Enviar datos</string>
     <string name="get_location">Obtener localizacion</string>
+    <string name="title_activity_maps">MapsActivity</string>
 </resources>
