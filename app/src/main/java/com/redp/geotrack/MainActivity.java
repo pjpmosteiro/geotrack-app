@@ -1,65 +1,48 @@
 package com.redp.geotrack;
 
+import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
+import static android.Manifest.permission.ACCESS_FINE_LOCATION;
+import static android.Manifest.permission.INTERNET;
+
 import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
 import android.os.Build;
-import android.os.StrictMode;
 import android.os.Bundle;
-import android.view.View;
+import android.os.StrictMode;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
-
-import java.io.IOException;
-import java.util.*;
-
-import static android.Manifest.permission.*;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 
+import java.io.IOException;
+import java.util.ArrayList;
+
 
 public class MainActivity extends AppCompatActivity {
 
 
-    private ArrayList<String> permissionsToRequest;
+    private final static int ALL_PERMISSIONS_RESULT = 101;
     private final ArrayList<String> permissionsRejected = new ArrayList<>();
     private final ArrayList<String> permissions = new ArrayList<>();
-
-    private final static int ALL_PERMISSIONS_RESULT = 101;
     LocationTrack locationTrack;
-
     SendMessage sendMessage = new SendMessage();
+    private ArrayList<String> permissionsToRequest;
 
+    private final int HTTP_OK = 200;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
-
-        bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
-            @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
-                if (item.getItemId() == R.id.nav_home) {
-                    Toast.makeText(MainActivity.this, "Home seleccionado", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (item.getItemId() == R.id.nav_location) {
-                    Toast.makeText(MainActivity.this, "Location seleccionado", Toast.LENGTH_SHORT).show();
-                    return true;
-                } else if (item.getItemId() == R.id.nav_settings) {
-                    Toast.makeText(MainActivity.this, "Settings seleccionado", Toast.LENGTH_SHORT).show();
-                    return true;
-                }
-                return false;
-            }
-        });
-
+        //get the permissions we need
         permissions.add(ACCESS_FINE_LOCATION);
         permissions.add(ACCESS_COARSE_LOCATION);
         permissions.add(INTERNET);
@@ -75,44 +58,48 @@ public class MainActivity extends AppCompatActivity {
                 requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
         }
 
+        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
 
-        Button btn = (Button) findViewById(R.id.btn);
-
-
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-
-                locationTrack = new LocationTrack(MainActivity.this);
-                FIleManager fileManager = new FIleManager();
-
-
-                if (locationTrack.canGetLocation()) {
-
-
-                    double longitude = locationTrack.getLongitude();
-                    double latitude = locationTrack.getLatitude();
-
-//                    Toast.makeText(getApplicationContext(), "Longitude:" + Double.toString(longitude) + "\nLatitude:" + Double.toString(latitude), Toast.LENGTH_SHORT).show();
-                    Toast.makeText(getApplicationContext(), "Latitud:" + latitude + "\nLongitud:" + longitude, Toast.LENGTH_SHORT).show();
-                    fileManager.writeToFile("Latitud: " + latitude + "\nLongitud:" + longitude, MainActivity.this);
+        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+            if (item.getItemId() == R.id.nav_home) {
+                Toast.makeText(MainActivity.this, "Home seleccionado", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (item.getItemId() == R.id.nav_location) {
+                Toast.makeText(MainActivity.this, "Location seleccionado", Toast.LENGTH_SHORT).show();
+                return true;
+            } else if (item.getItemId() == R.id.nav_settings) {
+                Toast.makeText(MainActivity.this, "Settings seleccionado", Toast.LENGTH_SHORT).show();
+                return true;
+            }
+            return false;
+        });
 
 
-                } else {
+        Button btn = findViewById(R.id.btn);
 
-                    locationTrack.showSettingsAlert();
-                }
 
+        btn.setOnClickListener(view -> {
+
+            locationTrack = new LocationTrack(MainActivity.this);
+            FIleManager fileManager = new FIleManager();
+            if (locationTrack.canGetLocation()) {
+                double longitude = locationTrack.getLongitude();
+                double latitude = locationTrack.getLatitude();
+
+                // Toast.makeText(getApplicationContext(), "Longitude:" + Double.toString(longitude) + "\nLatitude:" + Double.toString(latitude), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getApplicationContext(), "Latitud:" + latitude + "\nLongitud:" + longitude, Toast.LENGTH_SHORT).show();
+                fileManager.writeToFile("Latitud: " + latitude + "\nLongitud:" + longitude, MainActivity.this);
+            } else {
+                locationTrack.showSettingsAlert();
             }
         });
 
-        Button btn2 = (Button) findViewById(R.id.btn2);
-        EditText textInput   = (EditText)findViewById(R.id.text01);
+        Button btn2 = findViewById(R.id.btn2);
+        EditText textInput = findViewById(R.id.text01);
         btn2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 strictModeDisabler();
-
                 locationTrack = new LocationTrack(MainActivity.this);
                 double longitude = locationTrack.getLongitude();
                 double latitude = locationTrack.getLatitude();
@@ -124,7 +111,6 @@ public class MainActivity extends AppCompatActivity {
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
-
                 Toast.makeText(getApplicationContext(), "Enviando datos", Toast.LENGTH_SHORT).show();
 
 
@@ -153,16 +139,12 @@ public class MainActivity extends AppCompatActivity {
 //                }
 
                     String url = "https://www.google.com/maps/search/?api=1&query=" + latitude + "," + longitude;
-                    sendMessage.sendMessage(Double.toString(longitude), Double.toString(latitude), url, token);
+                    sendMessage.sendMessage(getApplicationContext(), Double.toString(longitude), Double.toString(latitude), url, token);
 
                     if (textInput.getText().toString() != ""){
-                        sendMessage.sendMessageWithoutCoordinates(textInput.getText().toString(), url, token);
+                        sendMessage.sendMessageWithoutCoordinates(getApplicationContext(), textInput.getText().toString(), url, token);
                     }
-
-
-
             }
-
             private void strictModeDisabler() {
                 if (Build.VERSION.SDK_INT > 9) {
                     StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
@@ -176,9 +158,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-
-
-
 //        try {
 //            while (true) {
 //                String url = "https://www.google.com/maps/search/?api=1&query=" + Double.toString(latitude) + "," + Double.toString(longitude);
@@ -188,8 +167,6 @@ public class MainActivity extends AppCompatActivity {
 //        } catch (InterruptedException e) {
 //            e.printStackTrace();
 //        }
-
-
 
 
     private ArrayList<String> findUnAskedPermissions(ArrayList<String> wanted) {
@@ -237,15 +214,14 @@ public class MainActivity extends AppCompatActivity {
 
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
                         if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
-                            showMessageOKCancel("These permissions are mandatory for the application. Please allow access.",
-                                    new DialogInterface.OnClickListener() {
-                                        @Override
-                                        public void onClick(DialogInterface dialog, int which) {
-                                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                                requestPermissions(permissionsRejected.toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
-                                            }
-                                        }
-                                    });
+                            showMessageOKCancel("These permissions are mandatory for the application. Please allow access.", new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                        requestPermissions(permissionsRejected.toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
+                                    }
+                                }
+                            });
                             return;
                         }
                     }
@@ -258,12 +234,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(MainActivity.this)
-                .setMessage(message)
-                .setPositiveButton("OK", okListener)
-                .setNegativeButton("Cancel", null)
-                .create()
-                .show();
+        new AlertDialog.Builder(MainActivity.this).setMessage(message).setPositiveButton("OK", okListener).setNegativeButton("Cancel", null).create().show();
     }
 
     @Override

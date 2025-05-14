@@ -1,4 +1,7 @@
 package com.redp.geotrack;
+import android.content.Context;
+import android.widget.Toast;
+
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
@@ -13,6 +16,7 @@ public class HttpPostForm {
     private HttpURLConnection httpConn;
     private Map<String, Object> queryParams;
     private String charset;
+    private Context applicationContext;
 
     /**
      * This constructor initializes a new HTTP POST request with content type
@@ -24,13 +28,14 @@ public class HttpPostForm {
      * @param queryParams
      * @throws IOException
      */
-    public HttpPostForm(String requestURL, String charset, Map<String, String> headers, Map<String, Object> queryParams) throws IOException {
+    public HttpPostForm(String requestURL, String charset, Map<String, String> headers, Map<String, Object> queryParams, Context applicationContext) throws IOException {
         this.charset = charset;
         if (queryParams == null) {
             this.queryParams = new HashMap<>();
         } else {
             this.queryParams = queryParams;
         }
+        this.applicationContext = applicationContext;
         URL url = new URL(requestURL);
         httpConn = (HttpURLConnection) url.openConnection();
         httpConn.setUseCaches(false);
@@ -47,8 +52,8 @@ public class HttpPostForm {
         }
     }
 
-    public HttpPostForm(String requestURL, String charset, Map<String, String> headers) throws IOException {
-        this(requestURL, charset, headers, null);
+    public HttpPostForm(String requestURL, String charset, Map<String, String> headers, Context applicationContext) throws IOException {
+        this(requestURL, charset, headers, null, applicationContext);
     }
 
     public HttpPostForm(String requestURL, String charset) throws IOException {
@@ -138,7 +143,9 @@ public class HttpPostForm {
             }
             response = result.toString(this.charset);
             httpConn.disconnect();
+            Toast.makeText(applicationContext, R.string.post_ok, Toast.LENGTH_SHORT).show();
         } else {
+            Toast.makeText(applicationContext, R.string.post_fail, Toast.LENGTH_SHORT).show();
             throw new IOException("Server returned non-OK status: " + status);
         }
         return response;

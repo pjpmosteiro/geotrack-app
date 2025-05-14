@@ -6,9 +6,7 @@ buildscript {
     }
     repositories {
         jcenter()
-        maven {
-            url 'https://maven.google.com'
-        }
+        mavenCentral()
         google()
     }
     dependencies {
@@ -21,15 +19,23 @@ buildscript {
     }
 }
 
+
+plugins {
+    id 'org.jetbrains.kotlin.jvm'
+}
+repositories {
+    mavenCentral()
+}
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+}
+kotlin {
+    jvmToolchain(8)
+}
 allprojects {
     repositories {
-        maven {
-            url 'https://maven.google.com'
-        }
+        mavenCentral()
         jcenter()
+        google()
     }
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
 }

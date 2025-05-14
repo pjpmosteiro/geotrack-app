@@ -3,5 +3,6 @@
     <string name="input_hint">Introduce localizacion</string>
     <string name="save">Enviar datos</string>
     <string name="get_location">Obtener localizacion</string>
-    <string name="title_activity_maps">MapsActivity</string>
+    <string name="post_ok">Mensaje enviado correctamente</string>
+    <string name="post_fail">Error, mensaje no enviado</string>
 </resources>

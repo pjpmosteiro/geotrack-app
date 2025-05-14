@@ -4,4 +4,6 @@
     <string name="input_hint">Enter location</string>
     <string name="save">Send data</string>
     <string name="get_location">Get Location</string>
+    <string name="post_ok">Message sent ok</string>
+    <string name="post_fail">Error, message not sent</string>
 </resources>
