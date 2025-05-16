@@ -1,117 +1,119 @@
-package com.redp.geotrack;
+package com.redp.geotrack
 
-import static android.Manifest.permission.ACCESS_COARSE_LOCATION;
-import static android.Manifest.permission.ACCESS_FINE_LOCATION;
-import static android.Manifest.permission.INTERNET;
+import android.Manifest.permission
+import android.annotation.TargetApi
+import android.content.DialogInterface
+import android.content.pm.PackageManager
+import android.os.Build
+import android.os.Bundle
+import android.os.StrictMode
+import android.os.StrictMode.ThreadPolicy
+import android.view.MenuItem
+import android.view.View
+import android.widget.Button
+import android.widget.EditText
+import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
+import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.io.IOException
 
-import android.annotation.TargetApi;
-import android.content.DialogInterface;
-import android.content.pm.PackageManager;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.StrictMode;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Toast;
+class MainActivity : AppCompatActivity() {
+    private val permissionsRejected = ArrayList<String>()
+    private val permissions = ArrayList<String>()
+    var locationTrack: LocationTrack? = null
+    var sendMessage: SendMessage = SendMessage()
+    private var permissionsToRequest: ArrayList<String>? = null
 
-import androidx.appcompat.app.AlertDialog;
-import androidx.appcompat.app.AppCompatActivity;
+    private val HTTP_OK = 200
 
-import com.google.android.material.bottomnavigation.BottomNavigationView;
-
-import java.io.IOException;
-import java.util.ArrayList;
-
-
-public class MainActivity extends AppCompatActivity {
-
-
-    private final static int ALL_PERMISSIONS_RESULT = 101;
-    private final ArrayList<String> permissionsRejected = new ArrayList<>();
-    private final ArrayList<String> permissions = new ArrayList<>();
-    LocationTrack locationTrack;
-    SendMessage sendMessage = new SendMessage();
-    private ArrayList<String> permissionsToRequest;
-
-    private final int HTTP_OK = 200;
-
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
         //get the permissions we need
-        permissions.add(ACCESS_FINE_LOCATION);
-        permissions.add(ACCESS_COARSE_LOCATION);
-        permissions.add(INTERNET);
+        permissions.add(permission.ACCESS_FINE_LOCATION)
+        permissions.add(permission.ACCESS_COARSE_LOCATION)
+        permissions.add(permission.INTERNET)
 
-        permissionsToRequest = findUnAskedPermissions(permissions);
+        permissionsToRequest = findUnAskedPermissions(permissions)
+
+
         //get the permissions we have asked for before but are not granted..
         //we will store this in a global list to access later.
-
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-
-            if (permissionsToRequest.size() > 0)
-                requestPermissions(permissionsToRequest.toArray(new String[permissionsToRequest.size()]), ALL_PERMISSIONS_RESULT);
+            if (permissionsToRequest!!.size > 0) requestPermissions(
+                permissionsToRequest!!.toTypedArray<String>(),
+                ALL_PERMISSIONS_RESULT
+            )
         }
 
-        BottomNavigationView bottomNavigationView = findViewById(R.id.bottom_navigation);
+        val bottomNavigationView = findViewById<BottomNavigationView>(R.id.bottom_navigation)
 
-        bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
-            if (item.getItemId() == R.id.nav_home) {
-                Toast.makeText(MainActivity.this, "Home seleccionado", Toast.LENGTH_SHORT).show();
-                return true;
-            } else if (item.getItemId() == R.id.nav_location) {
-                Toast.makeText(MainActivity.this, "Location seleccionado", Toast.LENGTH_SHORT).show();
-                return true;
-            } else if (item.getItemId() == R.id.nav_settings) {
-                Toast.makeText(MainActivity.this, "Settings seleccionado", Toast.LENGTH_SHORT).show();
-                return true;
+        bottomNavigationView.setOnNavigationItemSelectedListener { item: MenuItem ->
+            if (item.itemId == R.id.nav_home) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Home seleccionado",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnNavigationItemSelectedListener true
+            } else if (item.itemId == R.id.nav_location) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Location seleccionado",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnNavigationItemSelectedListener true
+            } else if (item.itemId == R.id.nav_settings) {
+                Toast.makeText(
+                    this@MainActivity,
+                    "Settings seleccionado",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnNavigationItemSelectedListener true
             }
-            return false;
-        });
+            false
+        }
 
 
-        Button btn = findViewById(R.id.btn);
+        val btn = findViewById<Button>(R.id.btn)
 
 
-        btn.setOnClickListener(view -> {
-
-            locationTrack = new LocationTrack(MainActivity.this);
-            FIleManager fileManager = new FIleManager();
-            if (locationTrack.canGetLocation()) {
-                double longitude = locationTrack.getLongitude();
-                double latitude = locationTrack.getLatitude();
+        btn.setOnClickListener { view: View? ->
+            locationTrack = LocationTrack(this@MainActivity)
+            val fileManager = FIleManager()
+            if (locationTrack!!.canGetLocation()) {
+                val longitude = locationTrack!!.getLongitude()
+                val latitude = locationTrack!!.getLatitude()
 
                 // Toast.makeText(getApplicationContext(), "Longitude:" + Double.toString(longitude) + "\nLatitude:" + Double.toString(latitude), Toast.LENGTH_SHORT).show();
-                Toast.makeText(getApplicationContext(), "Latitud:" + latitude + "\nLongitud:" + longitude, Toast.LENGTH_SHORT).show();
-                fileManager.writeToFile("Latitud: " + latitude + "\nLongitud:" + longitude, MainActivity.this);
+                Toast.makeText(
+                    applicationContext,
+                    "Latitud:$latitude\nLongitud:$longitude",
+                    Toast.LENGTH_SHORT
+                ).show()
+                fileManager.writeToFile(
+                    "Latitud: $latitude\nLongitud:$longitude",
+                    this@MainActivity
+                )
             } else {
-                locationTrack.showSettingsAlert();
+                locationTrack!!.showSettingsAlert()
             }
-        });
+        }
 
-        Button btn2 = findViewById(R.id.btn2);
-        EditText textInput = findViewById(R.id.text01);
-        btn2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                strictModeDisabler();
-                locationTrack = new LocationTrack(MainActivity.this);
-                double longitude = locationTrack.getLongitude();
-                double latitude = locationTrack.getLatitude();
-                String token = null;
+        val btn2 = findViewById<Button>(R.id.btn2)
+        val textInput = findViewById<EditText>(R.id.text01)
+        btn2.setOnClickListener(object : View.OnClickListener {
+            override fun onClick(view: View) {
+                strictModeDisabler()
+                locationTrack = LocationTrack(this@MainActivity)
+                val longitude = locationTrack!!.getLongitude()
+                val latitude = locationTrack!!.getLatitude()
                 //Request the token URL
-                GetToken getToken = new GetToken();
-                try {
-                    token = getToken.getToken();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-                Toast.makeText(getApplicationContext(), "Enviando datos", Toast.LENGTH_SHORT).show();
+                val getToken = GetToken()
+                val token: String = getToken.token ?: throw IllegalStateException("Token no puede ser nulo")
+                Toast.makeText(applicationContext, "Enviando datos", Toast.LENGTH_SHORT).show()
 
 
                 //TODO: Generar fichero con los puntos de trayectoria
@@ -137,109 +139,121 @@ public class MainActivity extends AppCompatActivity {
 //                    String url = "https://www.google.com/maps/search/?api=1&query=" + Double.toString(latitude) + "," + Double.toString(longitude);
 //                    sendMessage.sendMessage(Double.toString(longitude), Double.toString(latitude), url, token);
 //                }
+                val url =
+                    "https://www.google.com/maps/search/?api=1&query=$latitude,$longitude"
+                sendMessage.sendMessage(
+                    applicationContext,
+                    longitude.toString(),
+                    latitude.toString(),
+                    url,
+                    token
+                )
 
-                    String url = "https://www.google.com/maps/search/?api=1&query=" + latitude + "," + longitude;
-                    sendMessage.sendMessage(getApplicationContext(), Double.toString(longitude), Double.toString(latitude), url, token);
-
-                    if (textInput.getText().toString() != ""){
-                        sendMessage.sendMessageWithoutCoordinates(getApplicationContext(), textInput.getText().toString(), url, token);
-                    }
-            }
-            private void strictModeDisabler() {
-                if (Build.VERSION.SDK_INT > 9) {
-                    StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-                    StrictMode.setThreadPolicy(policy);
+                if (textInput.text.toString() !== "") {
+                    sendMessage.sendMessageWithoutCoordinates(
+                        applicationContext,
+                        textInput.text.toString(),
+                        url,
+                        token
+                    )
                 }
             }
-        });
+
+            fun strictModeDisabler() {
+                if (Build.VERSION.SDK_INT > 9) {
+                    val policy = ThreadPolicy.Builder().permitAll().build()
+                    StrictMode.setThreadPolicy(policy)
+                }
+            }
+        })
 
 
-//
+        //
     }
 
 
-//        try {
-//            while (true) {
-//                String url = "https://www.google.com/maps/search/?api=1&query=" + Double.toString(latitude) + "," + Double.toString(longitude);
-//                sendMessage.sendMessage(Double.toString(longitude), Double.toString(latitude), url, token);
-//                Thread.sleep(5 * 1000);
-//            }
-//        } catch (InterruptedException e) {
-//            e.printStackTrace();
-//        }
+    //        try {
+    //            while (true) {
+    //                String url = "https://www.google.com/maps/search/?api=1&query=" + Double.toString(latitude) + "," + Double.toString(longitude);
+    //                sendMessage.sendMessage(Double.toString(longitude), Double.toString(latitude), url, token);
+    //                Thread.sleep(5 * 1000);
+    //            }
+    //        } catch (InterruptedException e) {
+    //            e.printStackTrace();
+    //        }
+    private fun findUnAskedPermissions(wanted: ArrayList<String>): ArrayList<String> {
+        val result = ArrayList<String>()
 
-
-    private ArrayList<String> findUnAskedPermissions(ArrayList<String> wanted) {
-        ArrayList<String> result = new ArrayList<String>();
-
-        for (String perm : wanted) {
+        for (perm in wanted) {
             if (!hasPermission(perm)) {
-                result.add(perm);
+                result.add(perm)
             }
         }
 
-        return result;
+        return result
     }
 
-    private boolean hasPermission(String permission) {
+    private fun hasPermission(permission: String): Boolean {
         if (canMakeSmores()) {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED);
+                return (checkSelfPermission(permission) == PackageManager.PERMISSION_GRANTED)
             }
         }
-        return true;
+        return true
     }
 
-    private boolean canMakeSmores() {
-        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1);
+    private fun canMakeSmores(): Boolean {
+        return (Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1)
     }
 
 
     @TargetApi(Build.VERSION_CODES.M)
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        switch (requestCode) {
-
-            case ALL_PERMISSIONS_RESULT:
-                for (String perms : permissionsToRequest) {
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<String>,
+        grantResults: IntArray
+    ) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when (requestCode) {
+            ALL_PERMISSIONS_RESULT -> {
+                for (perms in permissionsToRequest!!) {
                     if (!hasPermission(perms)) {
-                        permissionsRejected.add(perms);
+                        permissionsRejected.add(perms)
                     }
                 }
 
-                if (permissionsRejected.size() > 0) {
-
-
+                if (permissionsRejected.size > 0) {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                        if (shouldShowRequestPermissionRationale(permissionsRejected.get(0))) {
-                            showMessageOKCancel("These permissions are mandatory for the application. Please allow access.", new DialogInterface.OnClickListener() {
-                                @Override
-                                public void onClick(DialogInterface dialog, int which) {
-                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-                                        requestPermissions(permissionsRejected.toArray(new String[permissionsRejected.size()]), ALL_PERMISSIONS_RESULT);
-                                    }
+                        if (shouldShowRequestPermissionRationale(permissionsRejected[0])) {
+                            showMessageOKCancel(
+                                "These permissions are mandatory for the application. Please allow access."
+                            ) { dialog, which ->
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                                    requestPermissions(
+                                        permissionsRejected.toTypedArray<String>(),
+                                        ALL_PERMISSIONS_RESULT
+                                    )
                                 }
-                            });
-                            return;
+                            }
+                            return
                         }
                     }
-
                 }
-
-                break;
+            }
         }
-
     }
 
-    private void showMessageOKCancel(String message, DialogInterface.OnClickListener okListener) {
-        new AlertDialog.Builder(MainActivity.this).setMessage(message).setPositiveButton("OK", okListener).setNegativeButton("Cancel", null).create().show();
+    private fun showMessageOKCancel(message: String, okListener: DialogInterface.OnClickListener) {
+        AlertDialog.Builder(this@MainActivity).setMessage(message)
+            .setPositiveButton("OK", okListener).setNegativeButton("Cancel", null).create().show()
     }
 
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        locationTrack.stopListener();
+    override fun onDestroy() {
+        super.onDestroy()
+        locationTrack!!.stopListener()
+    }
+
+    companion object {
+        private const val ALL_PERMISSIONS_RESULT = 101
     }
 }

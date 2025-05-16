@@ -1,7 +1,9 @@
 apply plugin: 'com.android.application'
 apply plugin: 'com.google.android.libraries.mapsplatform.secrets-gradle-plugin'
+apply plugin: 'org.jetbrains.kotlin.android'
 
 android {
+
     namespace 'com.redp.geotrack' // Agrega el namespace aquí
     compileSdkVersion 35 // Actualiza a la versión requerida
     defaultConfig {
@@ -27,6 +29,10 @@ android {
     }
 }
 
+kotlin {
+    jvmToolchain(8) // Configura la JVM a 1.8
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.google.android.gms:play-services-maps:19.2.0'
@@ -43,3 +49,4 @@ dependencies {
     implementation "org.jetbrains.kotlin:kotlin-stdlib:2.1.21"
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:2.1.21" // Asegúrate de usar la misma versión
 }
+

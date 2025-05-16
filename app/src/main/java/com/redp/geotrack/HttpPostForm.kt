@@ -1,22 +1,24 @@
-package com.redp.geotrack;
-import android.content.Context;
-import android.widget.Toast;
+package com.redp.geotrack
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UnsupportedEncodingException;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
+import android.content.Context
+import android.widget.Toast
+import java.io.ByteArrayOutputStream
+import java.io.IOException
+import java.io.UnsupportedEncodingException
+import java.net.HttpURLConnection
+import java.net.URL
+import java.net.URLEncoder
 
-public class HttpPostForm {
-    private HttpURLConnection httpConn;
-    private Map<String, Object> queryParams;
-    private String charset;
-    private Context applicationContext;
+class HttpPostForm(
+    requestURL: String?,
+    private val charset: String,
+    headers: Map<String?, String?>?,
+    queryParams: MutableMap<String, Any>?,
+    applicationContext: Context?
+) {
+    private var httpConn: HttpURLConnection
+    private var queryParams: MutableMap<String, Any>? = null
+    private val applicationContext: Context?
 
     /**
      * This constructor initializes a new HTTP POST request with content type
@@ -28,37 +30,36 @@ public class HttpPostForm {
      * @param queryParams
      * @throws IOException
      */
-    public HttpPostForm(String requestURL, String charset, Map<String, String> headers, Map<String, Object> queryParams, Context applicationContext) throws IOException {
-        this.charset = charset;
+    init {
         if (queryParams == null) {
-            this.queryParams = new HashMap<>();
+            this.queryParams = HashMap()
         } else {
-            this.queryParams = queryParams;
+            this.queryParams = queryParams
         }
-        this.applicationContext = applicationContext;
-        URL url = new URL(requestURL);
-        httpConn = (HttpURLConnection) url.openConnection();
-        httpConn.setUseCaches(false);
-        httpConn.setDoOutput(true);    // indicates POST method
-        httpConn.setDoInput(true);
-        httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded");
-        if (headers != null && headers.size() > 0) {
-            Iterator<String> it = headers.keySet().iterator();
+        this.applicationContext = applicationContext
+        val url = URL(requestURL)
+        httpConn = url.openConnection() as HttpURLConnection
+        httpConn.useCaches = false
+        httpConn.doOutput = true // indicates POST method
+        httpConn.doInput = true
+        httpConn.setRequestProperty("Content-Type", "application/x-www-form-urlencoded")
+        if (headers != null && headers.size > 0) {
+            val it = headers.keys.iterator()
             while (it.hasNext()) {
-                String key = it.next();
-                String value = headers.get(key);
-                httpConn.setRequestProperty(key, value);
+                val key = it.next()
+                val value = headers[key]
+                httpConn.setRequestProperty(key, value)
             }
         }
     }
 
-    public HttpPostForm(String requestURL, String charset, Map<String, String> headers, Context applicationContext) throws IOException {
-        this(requestURL, charset, headers, null, applicationContext);
-    }
-
-    public HttpPostForm(String requestURL, String charset) throws IOException {
-        this(requestURL, charset, null, null);
-    }
+    @JvmOverloads
+    constructor(
+        requestURL: String?,
+        charset: String,
+        headers: Map<String?, String?>? = null,
+        applicationContext: Context? = null
+    ) : this(requestURL, charset, headers, null, applicationContext)
 
     /**
      * Adds a form field to the request
@@ -66,8 +67,8 @@ public class HttpPostForm {
      * @param name  field name
      * @param value field value
      */
-    public void addHeader(String name, Object value) {
-        queryParams.put(name, value);
+    fun addHeader(name: String, value: Any) {
+        queryParams!![name] = value
     }
 
     /**
@@ -76,8 +77,8 @@ public class HttpPostForm {
      * @param key
      * @param value
      */
-    public void addHeader(String key, String value) {
-        httpConn.setRequestProperty(key, value);
+    fun addHeader(key: String?, value: String?) {
+        httpConn.setRequestProperty(key, value)
     }
 
     /**
@@ -86,23 +87,23 @@ public class HttpPostForm {
      * @param params
      * @return
      */
-    private byte[] getParamsByte(Map<String, Object> params) {
-        byte[] result = null;
-        StringBuilder postData = new StringBuilder();
-        for (Map.Entry<String, Object> param : params.entrySet()) {
-            if (postData.length() != 0) {
-                postData.append('&');
+    private fun getParamsByte(params: Map<String, Any>): ByteArray? {
+        var result: ByteArray? = null
+        val postData = StringBuilder()
+        for ((key, value) in params) {
+            if (postData.length != 0) {
+                postData.append('&')
             }
-            postData.append(this.encodeParam(param.getKey()));
-            postData.append('=');
-            postData.append(this.encodeParam(String.valueOf(param.getValue())));
+            postData.append(this.encodeParam(key))
+            postData.append('=')
+            postData.append(this.encodeParam(value.toString()))
         }
         try {
-            result = postData.toString().getBytes("UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            result = postData.toString().toByteArray(charset("UTF-8"))
+        } catch (e: UnsupportedEncodingException) {
+            e.printStackTrace()
         }
-        return result;
+        return result
     }
 
     /**
@@ -111,14 +112,14 @@ public class HttpPostForm {
      * @param data
      * @return
      */
-    private String encodeParam(String data) {
-        String result = "";
+    private fun encodeParam(data: String): String {
+        var result = ""
         try {
-            result = URLEncoder.encode(data, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            result = URLEncoder.encode(data, "UTF-8")
+        } catch (e: UnsupportedEncodingException) {
+            e.printStackTrace()
         }
-        return result;
+        return result
     }
 
     /**
@@ -128,26 +129,27 @@ public class HttpPostForm {
      * status OK, otherwise an exception is thrown.
      * @throws IOException
      */
-    public String finish() throws IOException {
-        String response = "";
-        byte[] postDataBytes = this.getParamsByte(queryParams);
-        httpConn.getOutputStream().write(postDataBytes);
+    @Throws(IOException::class)
+    fun finish(): String {
+        var response = ""
+        val postDataBytes = this.getParamsByte(queryParams!!)
+        httpConn.outputStream.write(postDataBytes)
         // Check the http status
-        int status = httpConn.getResponseCode();
+        val status = httpConn.responseCode
         if (status == HttpURLConnection.HTTP_OK) {
-            ByteArrayOutputStream result = new ByteArrayOutputStream();
-            byte[] buffer = new byte[1024];
-            int length;
-            while ((length = httpConn.getInputStream().read(buffer)) != -1) {
-                result.write(buffer, 0, length);
+            val result = ByteArrayOutputStream()
+            val buffer = ByteArray(1024)
+            var length: Int
+            while ((httpConn.inputStream.read(buffer).also { length = it }) != -1) {
+                result.write(buffer, 0, length)
             }
-            response = result.toString(this.charset);
-            httpConn.disconnect();
-            Toast.makeText(applicationContext, R.string.post_ok, Toast.LENGTH_SHORT).show();
+            response = result.toString(this.charset)
+            httpConn.disconnect()
+            Toast.makeText(applicationContext, R.string.post_ok, Toast.LENGTH_SHORT).show()
         } else {
-            Toast.makeText(applicationContext, R.string.post_fail, Toast.LENGTH_SHORT).show();
-            throw new IOException("Server returned non-OK status: " + status);
+            Toast.makeText(applicationContext, R.string.post_fail, Toast.LENGTH_SHORT).show()
+            throw IOException("Server returned non-OK status: $status")
         }
-        return response;
+        return response
     }
 }

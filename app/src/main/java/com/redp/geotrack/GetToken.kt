@@ -1,38 +1,39 @@
-package com.redp.geotrack;
+package com.redp.geotrack
+
+import java.io.BufferedReader
+import java.io.IOException
+import java.io.InputStreamReader
+import java.net.HttpURLConnection
+import java.net.URL
 
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
+class GetToken {
+    @get:Throws(IOException::class)
+    val token: String
+        get() {
+            val url = "https://git.redp.icu/pjpmosteiro/ext/-/raw/main/tokenapp"
+            val con = URL(url).openConnection() as HttpURLConnection
+            con.requestMethod = "GET"
+            //response status
+            val status = con.responseCode
+            println(status)
+            //response body
+            if (status == 200) {
+                var line: String?
 
-public class GetToken {
+                val `in` =
+                    BufferedReader(InputStreamReader(con.inputStream))
 
-    public String getToken() throws IOException {
-        String url = "https://git.redp.icu/pjpmosteiro/ext/-/raw/main/tokenapp";
-        HttpURLConnection con = (HttpURLConnection) new URL(url).openConnection();
-        con.setRequestMethod("GET");
-        //response status
-        int status = con.getResponseCode();
-        System.out.println(status);
-        //response body
-        if (status == 200) {
+                val sb = StringBuilder()
 
-            String line;
-
-            BufferedReader in = new BufferedReader(new InputStreamReader(con.getInputStream()));
-
-            StringBuilder sb = new StringBuilder();
-
-            while ((line = in.readLine()) != null) {
-
-                sb.append(line);
+                while ((`in`.readLine().also { line = it }) != null) {
+                    sb.append(line)
+                }
+                return sb.toString()
+            } else {
+                println("error GET info")
             }
-            return sb.toString();
-        } else {
-            System.out.println("error GET info");
-        }
 
-        return url;
-    }}
+            return url
+        }
+}
